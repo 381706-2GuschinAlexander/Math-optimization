@@ -1,17 +1,49 @@
-cmake_minimum_required( VERSION 3.9 )
+cmake_minimum_required(VERSION 3.15)
+project("Math-optimization" LANGUAGES CXX)
 
-project(Math-optimization)
+# guard against in-source builds
+if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
+    message(FATAL_ERROR "In-source builds not allowed. Please make a new directory (called a build directory) and run CMake from there. You may need to remove CMakeCache.txt. ")
+endif()
 
-# include_directories("${CMAKE_CURRENT_SOURCE_DIR}/gtest")
-# add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/gtest")
+# find python libraries
+find_package(Python3 COMPONENTS Interpreter Development NumPy REQUIRED)
+find_package(PythonLibs 3.0 REQUIRED)
+include_directories(${PYTHON3_INCLUDE_DIRS} ${NumPy_INCLUDE_DIRS})
 
-#file(GLOB SUBLIBS "${CMAKE_CURRENT_SOURCE_DIR}/src/*lib")
+include(FetchContent)
+FetchContent_Declare(
+    matplotlib
+    GIT_REPOSITORY https://github.com/lava/matplotlib-cpp.git
+    GIT_TAG        f23347fca25219d1c42cbb91608b5556814bf572
+)
+FetchContent_Declare(
+    parser
+    URL http://warp.povusers.org/FunctionParser/fparser4.5.2.zip
+)
 
-#set(MATPLOTCPP D:/Git/matplotlib-cpp)
-include_directories($ENV{MATPLOTCPP})
+FetchContent_GetProperties(matplotlib)
+if(NOT matplotlib_POPULATED)
+    FetchContent_Populate(matplotlib)
+endif()
+include_directories(SYSTEM ${matplotlib_SOURCE_DIR})
 
-file(GLOB SUBDIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/*")
+FetchContent_GetProperties(parser)
+if(NOT parser_POPULATED)
+    FetchContent_Populate(parser)
+endif()
+include_directories(${parser_SOURCE_DIR})
 
-foreach(subdir ${SUBDIRS})
-  add_subdirectory(${subdir})
-endforeach()
+add_library(parserlib ${parser_SOURCE_DIR}/fparser.cc ${parser_SOURCE_DIR}/fpoptimizer.cc)
+set_target_properties(parserlib PROPERTIES LINKER_LANGUAGE CXX)
+
+# add executable
+add_executable(main ${CMAKE_CURENT_SOURCE_DIR}src/main/main.cpp)
+
+# link python and numpy
+target_link_libraries(main
+    PRIVATE
+        ${PYTHON_LIBRARIES}
+        Python3::NumPy
+		parserlib
+)
