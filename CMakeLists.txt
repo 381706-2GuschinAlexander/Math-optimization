@@ -33,17 +33,36 @@ if(NOT parser_POPULATED)
     FetchContent_Populate(parser)
 endif()
 include_directories(${parser_SOURCE_DIR})
-
 add_library(parserlib ${parser_SOURCE_DIR}/fparser.cc ${parser_SOURCE_DIR}/fpoptimizer.cc)
 set_target_properties(parserlib PROPERTIES LINKER_LANGUAGE CXX)
 
-# add executable
-add_executable(main ${CMAKE_CURENT_SOURCE_DIR}src/main/main.cpp)
+if (WIN32)
+    set(PKG_CONFIG_EXECUTABLE "C:/msys64/usr/bin/pkg-config")
+endif (WIN32)
 
-# link python and numpy
-target_link_libraries(main
-    PRIVATE
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(GTKMM REQUIRED gtkmm-3.0)
+
+
+# add executable
+add_library(mathlib STATIC ${CMAKE_CURENT_SOURCE_DIR}src/mathlib/mathlib.cpp)
+target_link_libraries(mathlib
+    PUBLIC
         ${PYTHON_LIBRARIES}
         Python3::NumPy
 		parserlib
 )
+
+include_directories(${CMAKE_CURENT_SOURCE_DIR}src/mathlib)
+add_executable(main ${CMAKE_CURENT_SOURCE_DIR}src/main/main.cpp)
+target_link_libraries(main
+    PRIVATE
+		mathlib
+		guilib
+		${GTKMM_LIBRARIES}
+)
+
+target_compile_definitions(main PRIVATE ${GTKMM_CFLAGS_OTHER})
+
+target_include_directories(main PRIVATE ${GTKMM_INCLUDE_DIRS})
+target_link_directories(main PRIVATE ${GTKMM_LIBRARY_DIRS})
