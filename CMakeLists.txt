@@ -6,6 +6,11 @@ if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
     message(FATAL_ERROR "In-source builds not allowed. Please make a new directory (called a build directory) and run CMake from there. You may need to remove CMakeCache.txt. ")
 endif()
 
+SET(CMAKE_BUILD_TYPE Release)
+SET(CMAKE_CXX_FLAGS_DISTRIBUTION "-O3")
+SET(CMAKE_C_FLAGS_DISTRIBUTION "-O3")
+
+
 # find python libraries
 find_package(Python3 COMPONENTS Interpreter Development NumPy REQUIRED)
 find_package(PythonLibs 3.0 REQUIRED)
@@ -47,19 +52,16 @@ target_link_libraries(mathlib
     PUBLIC
         ${PYTHON_LIBRARIES}
         Python3::NumPy
-		parserlib
+	parserlib
 )
 
 include_directories(${CMAKE_CURENT_SOURCE_DIR}src/mathlib)
 add_executable(main ${CMAKE_CURENT_SOURCE_DIR}src/main/main.cpp)
 target_link_libraries(main
     PRIVATE
-		mathlib
-		guilib
-		${GTKMM_LIBRARIES}
+	mathlib
+	${GTKMM_LIBRARIES}
 )
-
-target_compile_definitions(main PRIVATE ${GTKMM_CFLAGS_OTHER})
 
 target_include_directories(main PRIVATE ${GTKMM_INCLUDE_DIRS})
 target_link_directories(main PRIVATE ${GTKMM_LIBRARY_DIRS})
