@@ -36,9 +36,6 @@ include_directories(${parser_SOURCE_DIR})
 add_library(parserlib ${parser_SOURCE_DIR}/fparser.cc ${parser_SOURCE_DIR}/fpoptimizer.cc)
 set_target_properties(parserlib PROPERTIES LINKER_LANGUAGE CXX)
 
-if (WIN32)
-    set(PKG_CONFIG_EXECUTABLE "C:/msys64/usr/bin/pkg-config")
-endif (WIN32)
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(GTKMM REQUIRED gtkmm-3.0)
