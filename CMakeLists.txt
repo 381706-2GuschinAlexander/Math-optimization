@@ -52,15 +52,15 @@ target_link_libraries(mathlib
     PUBLIC
         ${PYTHON_LIBRARIES}
         Python3::NumPy
-	parserlib
+        parserlib
 )
 
 include_directories(${CMAKE_CURENT_SOURCE_DIR}src/mathlib)
 add_executable(main ${CMAKE_CURENT_SOURCE_DIR}src/main/main.cpp)
 target_link_libraries(main
     PRIVATE
-	mathlib
-	${GTKMM_LIBRARIES}
+        mathlib
+        ${GTKMM_LIBRARIES}
 )
 
 target_include_directories(main PRIVATE ${GTKMM_INCLUDE_DIRS})
