@@ -25,7 +25,7 @@ double optf::StronginMethod(std::function<double(double)> function, double a, do
 
     for(int i = 0; i < n - 1; ++i)
       R[i] = m * (x[i + 1] - x[i]) 
-      + pow(function(x[i + 1]) - function(x[i]), 2./(m * (x[i + 1] - x[i])))
+      + pow(function(x[i + 1]) - function(x[i]), 2) / (m * (x[i + 1] - x[i]))
       - 2 * (function(x[i + 1]) + function(x[i]));
 
     int ROI = std::distance(R.begin(), std::max_element(R.begin(), R.begin()+n));
