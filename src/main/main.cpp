@@ -19,18 +19,22 @@ public:
     int h_y = 35;
 
     entry_vec = std::vector<gtk::Entry>(num_of_entry);
+    coef_entry_vec = std::vector<gtk::Entry>(num_of_entry);
     const auto la = [&](){
       if(last_entry+1 < num_of_entry)
       {
         entry_vec[++last_entry].show();
+        coef_entry_vec[last_entry].show();
       }
     };
 
     for(int i = 0; i < num_of_entry; ++i){
       entry_vec[i].signal_activate().connect(la);
       entry_vec[i].set_size_request(250,30);
+      fixed.add(coef_entry_vec[i]);
       fixed.add(entry_vec[i]);
       fixed.move(entry_vec[i], 20, start_y + i * h_y);
+      fixed.move(coef_entry_vec[i], 300, start_y + i * h_y);
     }
 
     
@@ -73,7 +77,10 @@ public:
     show_all();
     for(auto& c : entry_vec)
       c.hide();
+    for(auto& c : coef_entry_vec)
+      c.hide();
     entry_vec[0].show();
+    coef_entry_vec[0].show();
   }
   
 private:

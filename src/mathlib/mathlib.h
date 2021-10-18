@@ -2,6 +2,8 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <functional>
+
 
 #include "matplotlibcpp.h"
 #include "fparser.hh"
@@ -10,8 +12,7 @@ namespace plt = matplotlibcpp;
 
 
 namespace optf{
-  double StronginMethod(FunctionParser& parser, double x0, double x1, double L);
-
+  double StronginMethod(std::function<double(double)> function, double x0, double x1, double r);
 };
 
 class FunctionContainer
