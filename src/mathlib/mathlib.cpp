@@ -54,18 +54,24 @@ FunctionContainer::FunctionContainer(const std::vector<std::string> &str_func_ve
   }
 }
 
-void FunctionContainer::Convolution(
-  //const std::vector<float> &conv_arg
-  )
+void FunctionContainer::Convolution(const std::vector<double> &conv_arg)
 {
-  
   double x0 = std::min(range_vec[0].first, range_vec[0].second);
   double x1 = std::max(range_vec[0].first, range_vec[0].second);
   double h = 0.005;
   size_t num_of_iter = (x1 - x0) / h;
   std::vector<double> X(num_of_iter);
-   for (size_t i = 0; i < num_of_iter; ++i)
+
+  for (size_t i = 0; i < num_of_iter; ++i)
     X[i] = x0 + i * h;
+
+  double coef_sum = 0;
+  for(auto c: conv_arg)
+    coef_sum += c;
+
+  std::vector<double> max_val;
+  std::vector<double> min_val;
+  
   for (auto &func : func_vector)
   {
     std::vector<double> Y(num_of_iter);
@@ -76,14 +82,34 @@ void FunctionContainer::Convolution(
 
 
 
-    auto la = [&](double x)->double{
+    auto la_min = [&](double x)->double{
       return func.Eval(&x);
     };
 
-    double x_min = optf::StronginMethod(la, x0, x1, 25);
-    plt::plot({x_min}, {func.Eval(&x_min)}, "ro");
+    auto la_max = [&](double x)->double{
+      return -func.Eval(&x);
+    };
+
+    min_val.push_back(la_min(optf::StronginMethod(la_min, x0, x1, 25)));
+    max_val.push_back(la_min(optf::StronginMethod(la_max, x0, x1, 25)));
   }
 
-  //plt::plot({1,2}, {1,2},"ro");
+  auto la = [&](double x)->double{
+    double res = 0;
+    for(int i = 0; i < func_vector.size(); ++i){
+      res += (conv_arg[i]/coef_sum) * ((func_vector[i].Eval(&x) - min_val[i] )/(max_val[i] - min_val[i]));
+    }
+    return res;
+  };
+
+  double min_poit = optf::StronginMethod(la,x0,x1,25);
+
+  std::vector<double> Y(num_of_iter);
+  for (size_t i = 0; i < num_of_iter; ++i)
+      Y[i] = la(X[i]);
+    
+  plt::named_plot("conv",X, Y, "");
+  plt::plot({min_poit}, {la(min_poit)},"ro");
+  plt::legend();
   plt::show();
 }

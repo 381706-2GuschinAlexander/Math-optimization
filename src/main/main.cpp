@@ -58,15 +58,19 @@ public:
       double x0 = std::stod(range[0].get_text()), x1 = std::stod(range[1].get_text());
       func_range.push_back(std::make_pair(x0,x1));
 
-      for(auto& c : entry_vec){
-        std::string tmp_string(c.get_text());
-        if(tmp_string != "")
+      for(int i = 0; i < entry_vec.size(); ++i){
+        std::string tmp_string(entry_vec[i].get_text());
+        std::string coef(coef_entry_vec[i].get_text());
+
+        if(tmp_string != "" && coef != ""){
           func_vec.push_back(tmp_string);
+          coef_vec.push_back(std::stod(coef));
+        }
       }
       if(func_vec.size() == 0) return true;
 
       FunctionContainer A(func_vec, str_arg, func_range);
-      A.Convolution();
+      A.Convolution(coef_vec);
       return true;
     });
     fixed.add(button1);

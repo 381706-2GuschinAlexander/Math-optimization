@@ -23,7 +23,5 @@ private:
   int operation_id;
 public:
   FunctionContainer(const std::vector<std::string>& str_func_vector, const std::string& str_arg, std::vector<std::pair<double,double>>& range);
-  void Convolution(
-    //const std::vector<float> &conv_arg
-  );
+  void Convolution(const std::vector<double> &conv_arg);
 };
