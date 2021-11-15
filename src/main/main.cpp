@@ -71,6 +71,7 @@ public:
 
       FunctionContainer A(func_vec, str_arg, func_range);
       A.Convolution(coef_vec);
+      A.DrawPlot(coef_vec, true ,"Conv");
       return true;
     });
     fixed.add(button1);

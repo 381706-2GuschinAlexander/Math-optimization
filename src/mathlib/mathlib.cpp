@@ -1,7 +1,8 @@
 #include "mathlib.h"
 
+optf::MetaData::MetaData(std::vector<double> vec, double val, int n) : return_point(vec), num_iteration(n), value(val){}
 
-double optf::StronginMethod(std::function<double(double)> function, double a, double b, double r){
+optf::MetaData optf::StronginMethod(std::function<double(double)> function, double a, double b, double r, double eps){
   std::vector<double> x(2);
   x[0] = a;
   x[1] = b;
@@ -34,6 +35,8 @@ double optf::StronginMethod(std::function<double(double)> function, double a, do
     std::sort(x.begin(), x.end());
 
     if(function(x_new) < func_val_at_min){
+      if( global_min - x_new < eps)
+        return MetaData({x_new}, function(x_new), n);
       global_min = x_new;
       func_val_at_min = function(x_new);
     }
@@ -41,8 +44,33 @@ double optf::StronginMethod(std::function<double(double)> function, double a, do
     ++n;
   }
 
-  return global_min;
+  return MetaData({global_min}, function(global_min), n);
 }
+
+void DrawData::Clear(){
+  X.clear();
+  Y_vec.clear();
+  single_entry_vec.clear();
+}
+
+void DrawData::Draw(std::string last_Y){
+  for(auto it = Y_vec.begin(); it != Y_vec.end() - 1; ++it)
+    plt::plot(X, *it);
+
+  if(last_Y != ""){
+    plt::named_plot(last_Y, X, *(Y_vec.end() - 1));
+  } else {
+    plt::plot(X, *(Y_vec.end() - 1));
+  }
+
+
+  for(auto& c : single_entry_vec)
+    plt::plot({c.first}, {c.second}, "ro");
+  plt::legend();
+  plt::show();
+}
+
+
 
 FunctionContainer::FunctionContainer(const std::vector<std::string> &str_func_vector, const std::string &str_arg, std::vector<std::pair<double,double>>& range) :  range_vec(range)
 {
@@ -54,16 +82,10 @@ FunctionContainer::FunctionContainer(const std::vector<std::string> &str_func_ve
   }
 }
 
-void FunctionContainer::Convolution(const std::vector<double> &conv_arg)
+optf::MetaData FunctionContainer::Convolution(const std::vector<double> &conv_arg)
 {
   double x0 = std::min(range_vec[0].first, range_vec[0].second);
   double x1 = std::max(range_vec[0].first, range_vec[0].second);
-  double h = 0.005;
-  size_t num_of_iter = (x1 - x0) / h;
-  std::vector<double> X(num_of_iter);
-
-  for (size_t i = 0; i < num_of_iter; ++i)
-    X[i] = x0 + i * h;
 
   double coef_sum = 0;
   for(auto c: conv_arg)
@@ -74,14 +96,6 @@ void FunctionContainer::Convolution(const std::vector<double> &conv_arg)
   
   for (auto &func : func_vector)
   {
-    std::vector<double> Y(num_of_iter);
-    
-    for (size_t i = 0; i < num_of_iter; ++i)
-      Y[i] = func.Eval(&X[i]);
-    plt::plot(X, Y);
-
-
-
     auto la_min = [&](double x)->double{
       return func.Eval(&x);
     };
@@ -90,8 +104,8 @@ void FunctionContainer::Convolution(const std::vector<double> &conv_arg)
       return -func.Eval(&x);
     };
 
-    min_val.push_back(la_min(optf::StronginMethod(la_min, x0, x1, 25)));
-    max_val.push_back(la_min(optf::StronginMethod(la_max, x0, x1, 25)));
+    min_val.push_back(la_min(optf::StronginMethod(la_min, x0, x1, 25, 0.01).return_point[0]));
+    max_val.push_back(la_min(optf::StronginMethod(la_max, x0, x1, 25, 0.01).return_point[0]));
   }
 
   auto la = [&](double x)->double{
@@ -102,14 +116,69 @@ void FunctionContainer::Convolution(const std::vector<double> &conv_arg)
     return res;
   };
 
-  double min_poit = optf::StronginMethod(la,x0,x1,25);
+  optf::MetaData res_data = optf::StronginMethod(la,x0,x1,25, 0.01);
 
-  std::vector<double> Y(num_of_iter);
+  draw.single_entry_vec.push_back(std::make_pair(res_data.return_point[0], res_data.value));
+  return res_data;
+}
+
+void FunctionContainer::DrawPlot(const std::vector<double> &conv_arg, bool DataDel, std::string last_Y){
+  double x0 = std::min(range_vec[0].first, range_vec[0].second);
+  double x1 = std::max(range_vec[0].first, range_vec[0].second);
+  double h = 0.005;
+  size_t num_of_iter = (x1 - x0) / h;
+  std::vector<double> X(num_of_iter);
+
   for (size_t i = 0; i < num_of_iter; ++i)
-      Y[i] = la(X[i]);
+    X[i] = x0 + i * h;
+
+  for (auto &func : func_vector){
+    std::vector<double> Y(num_of_iter);
     
-  plt::named_plot("conv",X, Y, "");
-  plt::plot({min_poit}, {la(min_poit)},"ro");
-  plt::legend();
-  plt::show();
+    for (size_t i = 0; i < num_of_iter; ++i)
+      Y[i] = func.Eval(&X[i]);
+
+    draw.Y_vec.push_back(std::move(Y));
+  }
+
+  double coef_sum = 0;
+  for(auto c: conv_arg)
+    coef_sum += c;
+
+  std::vector<double> max_val;
+  std::vector<double> min_val;
+  
+  for (auto &func : func_vector)
+  {
+    auto la_min = [&](double x)->double{
+      return func.Eval(&x);
+    };
+
+    auto la_max = [&](double x)->double{
+      return -func.Eval(&x);
+    };
+
+    min_val.push_back(la_min(optf::StronginMethod(la_min, x0, x1, 25, 0.01).return_point[0]));
+    max_val.push_back(la_min(optf::StronginMethod(la_max, x0, x1, 25, 0.01).return_point[0]));
+  }
+
+  auto la = [&](double x)->double{
+    double res = 0;
+    for(int i = 0; i < func_vector.size(); ++i){
+      res += (conv_arg[i]/coef_sum) * ((func_vector[i].Eval(&x) - min_val[i] )/(max_val[i] - min_val[i]));
+    }
+    return res;
+  };
+
+  if(conv_arg.size() == func_vector.size()){
+    std::vector<double> Y(num_of_iter);
+    for (size_t i = 0; i < num_of_iter; ++i)
+      Y[i] = la(X[i]);
+    draw.Y_vec.push_back(std::move(Y));
+  }
+
+  draw.X = X;
+  draw.Draw(last_Y);
+  if(DataDel)
+    draw.Clear();
 }

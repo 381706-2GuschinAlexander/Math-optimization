@@ -12,16 +12,33 @@ namespace plt = matplotlibcpp;
 
 
 namespace optf{
-  double StronginMethod(std::function<double(double)> function, double x0, double x1, double r);
+  struct MetaData{
+    std::vector<double> return_point;
+    int num_iteration;
+    double value;
+    MetaData(std::vector<double> vec, double val, int n);
+  };
+  MetaData StronginMethod(std::function<double(double)> function, double x0, double x1, double r, double eps);
+};
+
+struct DrawData{
+  std::vector<double> X;
+  std::vector<std::vector<double>> Y_vec;
+  std::vector<std::pair<double, double>> single_entry_vec;
+  void Clear();
+  void Draw(std::string last_Y = "");
 };
 
 class FunctionContainer
 {
 private:
+  DrawData draw;
   std::vector<FunctionParser> func_vector;
   std::vector<std::pair<double,double>> range_vec;
   int operation_id;
 public:
   FunctionContainer(const std::vector<std::string>& str_func_vector, const std::string& str_arg, std::vector<std::pair<double,double>>& range);
-  void Convolution(const std::vector<double> &conv_arg);
+  optf::MetaData Convolution(const std::vector<double> &conv_arg);
+  void DrawPlot(const std::vector<double> &conv_arg, bool DataDel = true, std::string last_Y = "");
+
 };
