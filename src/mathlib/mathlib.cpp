@@ -6,10 +6,19 @@ optf::MetaData optf::StronginMethod(std::function<double(double)> function, doub
   std::vector<double> x(2);
   x[0] = a;
   x[1] = b;
-  double global_min = x[0];
+
+  double global_min;
+
+  if(function(x[0]) < function(x[1])){
+    global_min = x[0];
+  } else{
+    global_min = x[1];
+    
+  }
+
   double func_val_at_min = function(global_min);
 
-  int N = 100;
+  int N = 1000;
 
 
   std::vector<double> R(N);
@@ -35,7 +44,7 @@ optf::MetaData optf::StronginMethod(std::function<double(double)> function, doub
     std::sort(x.begin(), x.end());
 
     if(function(x_new) < func_val_at_min){
-      if( global_min - x_new < eps)
+      if( func_val_at_min - function(x_new) < eps)
         return MetaData({x_new}, function(x_new), n);
       global_min = x_new;
       func_val_at_min = function(x_new);
@@ -46,6 +55,14 @@ optf::MetaData optf::StronginMethod(std::function<double(double)> function, doub
 
   return MetaData({global_min}, function(global_min), n);
 }
+
+
+
+
+
+
+
+
 
 void DrawData::Clear(){
   X.clear();
@@ -58,7 +75,7 @@ void DrawData::Draw(std::string last_Y){
     plt::plot(X, *it);
 
   if(last_Y != ""){
-    plt::named_plot(last_Y, X, *(Y_vec.end() - 1));
+    plt::named_plot(last_Y, X, *(Y_vec.end() - 1), "b");
   } else {
     plt::plot(X, *(Y_vec.end() - 1));
   }
@@ -69,6 +86,13 @@ void DrawData::Draw(std::string last_Y){
   plt::legend();
   plt::show();
 }
+
+
+
+
+
+
+
 
 
 
@@ -86,7 +110,7 @@ optf::MetaData FunctionContainer::Convolution(const std::vector<double> &conv_ar
 {
   double x0 = std::min(range_vec[0].first, range_vec[0].second);
   double x1 = std::max(range_vec[0].first, range_vec[0].second);
-
+  double eps = 1e-5;
   double coef_sum = 0;
   for(auto c: conv_arg)
     coef_sum += c;
@@ -104,8 +128,8 @@ optf::MetaData FunctionContainer::Convolution(const std::vector<double> &conv_ar
       return -func.Eval(&x);
     };
 
-    min_val.push_back(la_min(optf::StronginMethod(la_min, x0, x1, 25, 0.01).return_point[0]));
-    max_val.push_back(la_min(optf::StronginMethod(la_max, x0, x1, 25, 0.01).return_point[0]));
+    min_val.push_back(optf::StronginMethod(la_min, x0, x1, 25, eps).value);
+    max_val.push_back(-optf::StronginMethod(la_max, x0, x1, 25, eps).value);
   }
 
   auto la = [&](double x)->double{
@@ -116,13 +140,14 @@ optf::MetaData FunctionContainer::Convolution(const std::vector<double> &conv_ar
     return res;
   };
 
-  optf::MetaData res_data = optf::StronginMethod(la,x0,x1,25, 0.01);
+  optf::MetaData res_data = optf::StronginMethod(la,x0,x1,25, eps);
 
   draw.single_entry_vec.push_back(std::make_pair(res_data.return_point[0], res_data.value));
-  return res_data;
+  return optf::MetaData({min_val[0]}, max_val[0], 0);
 }
 
 void FunctionContainer::DrawPlot(const std::vector<double> &conv_arg, bool DataDel, std::string last_Y){
+  double eps = 1e-5;
   double x0 = std::min(range_vec[0].first, range_vec[0].second);
   double x1 = std::max(range_vec[0].first, range_vec[0].second);
   double h = 0.005;
@@ -158,8 +183,8 @@ void FunctionContainer::DrawPlot(const std::vector<double> &conv_arg, bool DataD
       return -func.Eval(&x);
     };
 
-    min_val.push_back(la_min(optf::StronginMethod(la_min, x0, x1, 25, 0.01).return_point[0]));
-    max_val.push_back(la_min(optf::StronginMethod(la_max, x0, x1, 25, 0.01).return_point[0]));
+    min_val.push_back(optf::StronginMethod(la_min, x0, x1, 25, eps).value);
+    max_val.push_back(-optf::StronginMethod(la_max, x0, x1, 25, eps).value);
   }
 
   auto la = [&](double x)->double{

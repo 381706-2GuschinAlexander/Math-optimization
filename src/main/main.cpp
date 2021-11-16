@@ -69,11 +69,29 @@ public:
       }
       if(func_vec.size() == 0) return true;
 
-      FunctionContainer A(func_vec, str_arg, func_range);
-      A.Convolution(coef_vec);
-      A.DrawPlot(coef_vec, true ,"Conv");
+      FunctionContainer MO_method(func_vec, str_arg, func_range);
+      auto res = MO_method.Convolution(coef_vec);
+
+      num_of_iter.set_label("Number of iteration: " + std::to_string(res.num_iteration));
+      point.set_label("Min at x: " + std::to_string(res.return_point[0]));
+      value.set_label("Function value: " + std::to_string(res.value));
+
+      MO_method.DrawPlot(coef_vec, true ,"Conv");
       return true;
-    });
+      });
+
+    point.set_label("Min at x: ");
+    fixed.add(point);
+    fixed.move(point, 600, 380);
+
+    value.set_label("Function value: ");
+    fixed.add(value);
+    fixed.move(value, 600, 415);
+
+    num_of_iter.set_label("Number of iteration: ");
+    fixed.add(num_of_iter);
+    fixed.move(num_of_iter, 600, 450);
+
     fixed.add(button1);
     fixed.move(button1, 20, 450);
     
@@ -95,6 +113,9 @@ private:
   std::vector<gtk::Entry> entry_vec;
   std::vector<gtk::Entry> coef_entry_vec;
   std::vector<gtk::Entry> range;
+  gtk::Label num_of_iter;
+  gtk::Label point;
+  gtk::Label value;
   int num_of_entry = 10;
   int last_entry = 0;
   int button1Clicked = 0;
