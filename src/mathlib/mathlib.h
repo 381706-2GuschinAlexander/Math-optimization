@@ -3,6 +3,8 @@
 #include <vector>
 #include <string>
 #include <functional>
+#include <algorithm>
+#include <cfloat>
 
 
 #include "matplotlibcpp.h"
@@ -38,7 +40,7 @@ private:
   int operation_id;
 public:
   FunctionContainer(const std::vector<std::string>& str_func_vector, const std::string& str_arg, std::vector<std::pair<double,double>>& range);
-  optf::MetaData Convolution(const std::vector<double> &conv_arg);
-  void DrawPlot(const std::vector<double> &conv_arg, bool DataDel = true, std::string last_Y = "");
+  optf::MetaData Convolution(const std::vector<double> &conv_arg, double eps);
+  void DrawPlot(const std::vector<double> &conv_arg, double eps, bool DataDel = true, std::string last_Y = "");
 
 };

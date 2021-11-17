@@ -21,8 +21,8 @@ optf::MetaData optf::StronginMethod(std::function<double(double)> function, doub
   int N = 1000;
 
 
-  std::vector<double> R(N);
-  std::vector<double> M(N);
+  std::vector<double> R(N, -DBL_MAX);
+  std::vector<double> M(N, -DBL_MAX);
   int n = 2;
   while(n < N){
     
@@ -44,23 +44,20 @@ optf::MetaData optf::StronginMethod(std::function<double(double)> function, doub
     std::sort(x.begin(), x.end());
 
     if(function(x_new) < func_val_at_min){
-      if( func_val_at_min - function(x_new) < eps)
-        return MetaData({x_new}, function(x_new), n);
-      global_min = x_new;
-      func_val_at_min = function(x_new);
+      std::swap(global_min,x_new);
+      func_val_at_min = function(global_min);
     }
 
+    if( std::abs(x_new - global_min) < eps)
+        return MetaData({global_min}, function(global_min), n);
+
     ++n;
+
+    
   }
 
   return MetaData({global_min}, function(global_min), n);
 }
-
-
-
-
-
-
 
 
 
@@ -89,13 +86,6 @@ void DrawData::Draw(std::string last_Y){
 
 
 
-
-
-
-
-
-
-
 FunctionContainer::FunctionContainer(const std::vector<std::string> &str_func_vector, const std::string &str_arg, std::vector<std::pair<double,double>>& range) :  range_vec(range)
 {
   for (auto &str_func : str_func_vector)
@@ -106,11 +96,10 @@ FunctionContainer::FunctionContainer(const std::vector<std::string> &str_func_ve
   }
 }
 
-optf::MetaData FunctionContainer::Convolution(const std::vector<double> &conv_arg)
+optf::MetaData FunctionContainer::Convolution(const std::vector<double> &conv_arg, double eps)
 {
   double x0 = std::min(range_vec[0].first, range_vec[0].second);
   double x1 = std::max(range_vec[0].first, range_vec[0].second);
-  double eps = 1e-5;
   double coef_sum = 0;
   for(auto c: conv_arg)
     coef_sum += c;
@@ -127,7 +116,6 @@ optf::MetaData FunctionContainer::Convolution(const std::vector<double> &conv_ar
     auto la_max = [&](double x)->double{
       return -func.Eval(&x);
     };
-
     min_val.push_back(optf::StronginMethod(la_min, x0, x1, 25, eps).value);
     max_val.push_back(-optf::StronginMethod(la_max, x0, x1, 25, eps).value);
   }
@@ -143,11 +131,10 @@ optf::MetaData FunctionContainer::Convolution(const std::vector<double> &conv_ar
   optf::MetaData res_data = optf::StronginMethod(la,x0,x1,25, eps);
 
   draw.single_entry_vec.push_back(std::make_pair(res_data.return_point[0], res_data.value));
-  return optf::MetaData({min_val[0]}, max_val[0], 0);
+  return res_data;
 }
 
-void FunctionContainer::DrawPlot(const std::vector<double> &conv_arg, bool DataDel, std::string last_Y){
-  double eps = 1e-5;
+void FunctionContainer::DrawPlot(const std::vector<double> &conv_arg, double eps, bool DataDel, std::string last_Y){
   double x0 = std::min(range_vec[0].first, range_vec[0].second);
   double x1 = std::max(range_vec[0].first, range_vec[0].second);
   double h = 0.005;

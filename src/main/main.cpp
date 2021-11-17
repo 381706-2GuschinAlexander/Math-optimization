@@ -70,13 +70,13 @@ public:
       if(func_vec.size() == 0) return true;
 
       FunctionContainer MO_method(func_vec, str_arg, func_range);
-      auto res = MO_method.Convolution(coef_vec);
+      auto res = MO_method.Convolution(coef_vec, 1e-3);
 
       num_of_iter.set_label("Number of iteration: " + std::to_string(res.num_iteration));
       point.set_label("Min at x: " + std::to_string(res.return_point[0]));
       value.set_label("Function value: " + std::to_string(res.value));
 
-      MO_method.DrawPlot(coef_vec, true ,"Conv");
+      MO_method.DrawPlot(coef_vec, 1e-3, true ,"Conv");
       return true;
       });
 
