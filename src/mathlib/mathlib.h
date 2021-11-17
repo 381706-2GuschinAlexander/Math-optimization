@@ -5,6 +5,8 @@
 #include <functional>
 #include <algorithm>
 #include <cfloat>
+#include <numeric>
+#include <list>
 
 
 #include "matplotlibcpp.h"
@@ -26,7 +28,8 @@ namespace optf{
 struct DrawData{
   std::vector<double> X;
   std::vector<std::vector<double>> Y_vec;
-  std::vector<std::pair<double, double>> single_entry_vec;
+  std::list<int> range;
+  std::pair<double, double> points;
   void Clear();
   void Draw(std::string last_Y = "");
 };
@@ -38,6 +41,7 @@ private:
   std::vector<FunctionParser> func_vector;
   std::vector<std::pair<double,double>> range_vec;
   int operation_id;
+  std::list<int> FindSolution();
 public:
   FunctionContainer(const std::vector<std::string>& str_func_vector, const std::string& str_arg, std::vector<std::pair<double,double>>& range);
   optf::MetaData Convolution(const std::vector<double> &conv_arg, double eps);
