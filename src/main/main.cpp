@@ -41,7 +41,7 @@ public:
     fixed.add(functions_label);
     fixed.move(functions_label, 125, 10);
 
-    params_label.set_label("Lambda");
+    params_label.set_label("Weight");
     fixed.add(params_label);
     fixed.move(params_label, 355, 10);
 
