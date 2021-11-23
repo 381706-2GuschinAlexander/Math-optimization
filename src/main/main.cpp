@@ -15,7 +15,7 @@ public:
     add(scrolledWindow);
     scrolledWindow.add(fixed);
     
-    int start_y = 20;
+    int start_y = 35;
     int h_y = 35;
 
     entry_vec = std::vector<gtk::Entry>(num_of_entry);
@@ -37,12 +37,24 @@ public:
       fixed.move(coef_entry_vec[i], 300, start_y + i * h_y);
     }
 
+    functions.set_label("f(x)");
+    fixed.add(functions);
+    fixed.move(functions, 125, 10);
+
+    params.set_label("Lambda");
+    fixed.add(params);
+    fixed.move(params, 355, 10);
+
+    range_str.set_label("Range");
+    fixed.add(range_str);
+    fixed.move(range_str, 665, 10);
+
     
     range = std::vector<gtk::Entry>(2);
     fixed.add(range[0]);
     fixed.add(range[1]);
-    fixed.move(range[0], 600, 20);
-    fixed.move(range[1], 600, 50);
+    fixed.move(range[0], 600, start_y);
+    fixed.move(range[1], 600, start_y + h_y);
 
     button1.set_label("Calculate");
     button1.signal_button_release_event().connect([&](GdkEventButton*) {
@@ -116,6 +128,9 @@ private:
   gtk::Label num_of_iter;
   gtk::Label point;
   gtk::Label value;
+  gtk::Label functions;
+  gtk::Label params;
+  gtk::Label range_str;
   int num_of_entry = 10;
   int last_entry = 0;
   int button1Clicked = 0;

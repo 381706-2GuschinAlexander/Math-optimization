@@ -3,7 +3,9 @@
 optf::MetaData::MetaData(std::vector<double> vec, double val, int n) : return_point(vec), num_iteration(n), value(val){}
 
 optf::MetaData optf::StronginMethod(std::function<double(double)> function, double a, double b, double r, double eps){
+  int N = 1000;
   std::vector<double> x(2);
+  x.reserve(N+1);
   x[0] = a;
   x[1] = b;
 
@@ -18,7 +20,7 @@ optf::MetaData optf::StronginMethod(std::function<double(double)> function, doub
 
   double func_val_at_min = function(global_min);
 
-  int N = 1000;
+  
 
 
   std::vector<double> R(N, -DBL_MAX);
@@ -118,24 +120,28 @@ optf::MetaData FunctionContainer::Convolution(const std::vector<double> &conv_ar
   
   for (auto &func : func_vector)
   {
-    auto la_min = [&](double x)->double{
-      return func.Eval(&x);
+    auto la_min = [=](double x) mutable->double {
+      double local_x = x;
+      return func.Eval(&local_x);
     };
 
-    auto la_max = [&](double x)->double{
-      return -func.Eval(&x);
+    auto la_max = [=](double x) mutable->double{
+      double local_x = x;
+      return -func.Eval(&local_x);
     };
     min_val.push_back(optf::StronginMethod(la_min, x0, x1, 25, eps).value);
     max_val.push_back(-optf::StronginMethod(la_max, x0, x1, 25, eps).value);
   }
 
-  auto la = [&](double x)->double{
+  auto la = [=](double x) mutable->double{
     double res = 0;
     for(int i = 0; i < func_vector.size(); ++i){
       res += (conv_arg[i]/coef_sum) * ((func_vector[i].Eval(&x) - min_val[i] )/(max_val[i] - min_val[i]));
     }
     return res;
   };
+
+  draw.function = la;
 
   optf::MetaData res_data = optf::StronginMethod(la,x0,x1,25, eps);
 
@@ -161,40 +167,11 @@ void FunctionContainer::DrawPlot(const std::vector<double> &conv_arg, double eps
 
     draw.Y_vec.push_back(std::move(Y));
   }
-
-  double coef_sum = 0;
-  for(auto c: conv_arg)
-    coef_sum += c;
-
-  std::vector<double> max_val;
-  std::vector<double> min_val;
   
-  for (auto &func : func_vector)
-  {
-    auto la_min = [&](double x)->double{
-      return func.Eval(&x);
-    };
-
-    auto la_max = [&](double x)->double{
-      return -func.Eval(&x);
-    };
-
-    min_val.push_back(optf::StronginMethod(la_min, x0, x1, 25, eps).value);
-    max_val.push_back(-optf::StronginMethod(la_max, x0, x1, 25, eps).value);
-  }
-
-  auto la = [&](double x)->double{
-    double res = 0;
-    for(int i = 0; i < func_vector.size(); ++i){
-      res += (conv_arg[i]/coef_sum) * ((func_vector[i].Eval(&x) - min_val[i] )/(max_val[i] - min_val[i]));
-    }
-    return res;
-  };
-
-  if(conv_arg.size() == func_vector.size()){
+  if(draw.function){
     std::vector<double> Y(num_of_iter);
     for (size_t i = 0; i < num_of_iter; ++i)
-      Y[i] = la(X[i]);
+      Y[i] = draw.function(X[i]);
     draw.Y_vec.push_back(std::move(Y));
   }
 
@@ -214,7 +191,7 @@ std::list<int> FunctionContainer::FindSolution(){
       if(it != it2){
         bool delete_index = true;
         for(int i = 0; i < draw.Y_vec.size() - 1; ++i)
-          if(draw.Y_vec[i][*it2] < draw.Y_vec[i][*it])
+          if(draw.Y_vec[i][*it2] <= draw.Y_vec[i][*it])
             delete_index = false;
         if(delete_index)
           it2 = range.erase(it2);

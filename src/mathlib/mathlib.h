@@ -30,6 +30,7 @@ struct DrawData{
   std::vector<std::vector<double>> Y_vec;
   std::list<int> range;
   std::pair<double, double> points;
+  std::function<double(double)> function;
   void Clear();
   void Draw(std::string last_Y = "");
 };
