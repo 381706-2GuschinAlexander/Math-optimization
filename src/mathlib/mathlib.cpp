@@ -33,24 +33,32 @@ optf::MetaData optf::StronginMethod(std::function<double(double)> function, doub
       
     double M_max = *std::max_element(M.begin(), M.begin()+n);
     
-    double m = M_max < 1.e-5 ? 1 : r * M_max;
+    double L = M_max < 1.e-5 ? 1 : r * M_max;
 
     for(int i = 0; i < n - 1; ++i)
-      R[i] = m * (x[i + 1] - x[i]) 
-      + pow(function(x[i + 1]) - function(x[i]), 2) / (m * (x[i + 1] - x[i]))
+      R[i] = L * (x[i + 1] - x[i]) 
+      + pow(function(x[i + 1]) - function(x[i]), 2) / (L * (x[i + 1] - x[i]))
       - 2 * (function(x[i + 1]) + function(x[i]));
 
     int ROI = std::distance(R.begin(), std::max_element(R.begin(), R.begin()+n));
-    double x_new = .5* (x[ROI + 1] + x[ROI]) - (function(x[ROI + 1]) - function(x[ROI]))/(2*m);
+    double x_new = .5* (x[ROI + 1] + x[ROI]) - (function(x[ROI + 1]) - function(x[ROI]))/(2*L);
     x.push_back(x_new);
     std::sort(x.begin(), x.end());
 
+    double x_pred;
+    
+    int i = 0;
+    while(x_new - x[i] > 0){
+      x_pred = x[i];
+      ++i;
+    }
+    
     if(function(x_new) < func_val_at_min){
-      std::swap(global_min,x_new);
+      global_min = x_new;
       func_val_at_min = function(global_min);
     }
 
-    if( std::abs(x_new - global_min) < eps)
+    if( std::abs(x_new - x_pred) < eps)
         return MetaData({global_min}, function(global_min), n);
 
     ++n;
