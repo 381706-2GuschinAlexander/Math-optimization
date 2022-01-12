@@ -45,6 +45,8 @@ set_target_properties(parserlib PROPERTIES LINKER_LANGUAGE CXX)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(GTKMM REQUIRED gtkmm-3.0)
 
+find_package(OpenMP REQUIRED)
+
 
 # add executable
 add_library(mathlib STATIC ${CMAKE_CURENT_SOURCE_DIR}src/mathlib/mathlib.cpp)
@@ -53,6 +55,7 @@ target_link_libraries(mathlib
         ${PYTHON_LIBRARIES}
         Python3::NumPy
         parserlib
+        OpenMP::OpenMP_CXX
 )
 
 include_directories(${CMAKE_CURENT_SOURCE_DIR}src/mathlib)
@@ -65,3 +68,9 @@ target_link_libraries(main
 
 target_include_directories(main PRIVATE ${GTKMM_INCLUDE_DIRS})
 target_link_directories(main PRIVATE ${GTKMM_LIBRARY_DIRS})
+
+add_executable(benchmark ${CMAKE_CURENT_SOURCE_DIR}src/benchmark/benchmark.cpp)
+target_link_libraries(benchmark
+    PRIVATE
+        mathlib
+)
