@@ -59,8 +59,6 @@ public:
     button1.set_label("Calculate");
     button1.signal_button_release_event().connect([&](GdkEventButton*) {
       std::string str_arg = "x";
-
-
       std::vector<std::string> func_vec;
       std::vector<double> coef_vec;
       std::vector<std::pair<double,double>> func_range;

@@ -1,3 +1,5 @@
+#pragma once
+
 #include <cmath>
 #include <iostream>
 #include <vector>
@@ -13,7 +15,6 @@
 #include "fparser.hh"
 
 namespace plt = matplotlibcpp;
-
 
 namespace optf{
   struct MetaData{
@@ -47,5 +48,4 @@ public:
   FunctionContainer(const std::vector<std::string>& str_func_vector, const std::string& str_arg, std::vector<std::pair<double,double>>& range);
   optf::MetaData Convolution(const std::vector<double> &conv_arg, double eps);
   void DrawPlot(const std::vector<double> &conv_arg, double eps, bool DataDel = true, std::string last_Y = "");
-
 };

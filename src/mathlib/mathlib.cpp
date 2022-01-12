@@ -3,62 +3,69 @@
 optf::MetaData::MetaData(std::vector<double> vec, double val, int n) : return_point(vec), num_iteration(n), value(val){}
 
 optf::MetaData optf::StronginMethod(std::function<double(double)> function, double a, double b, double r, double eps){
-  int N = 1000;
+  int N = 10000;
   std::vector<double> x(2);
-  x.reserve(N+1);
+  x.reserve(N);
+  std::vector<double> Q(2);
+  std::vector<double> R(N, -DBL_MAX);
+
+  Q.reserve(N);
+
   x[0] = a;
   x[1] = b;
 
-  double global_min;
+  Q[0]= function(x[0]);
+  Q[1]= function(x[1]);
 
-  if(function(x[0]) < function(x[1])){
+  double global_min;
+  double func_val_at_min;
+
+  if(Q[0] < Q[1]){
     global_min = x[0];
+    func_val_at_min = Q[0];
   } else{
     global_min = x[1];
-    
+    func_val_at_min = Q[1];
   }
 
-  double func_val_at_min = function(global_min);
+  auto get_M = [&](int i){
+    return abs(Q[i + 1] - Q[i]) / (x[i+1] - x[i]);
+  };
 
+  double M_max =  get_M(0);
   
-
-
-  std::vector<double> R(N, -DBL_MAX);
-  std::vector<double> M(N, -DBL_MAX);
   int n = 2;
   while(n < N){
+    double L = M_max < 1.e-5 ? 1 : r * M_max;
     
     for(int i = 0; i < n - 1; ++i)
-      M[i] = abs(function(x[i + 1]) - function(x[i])) / (x[i+1] - x[i]);
-      
-    double M_max = *std::max_element(M.begin(), M.begin()+n);
-    
-    double m = M_max < 1.e-5 ? 1 : r * M_max;
-
-    for(int i = 0; i < n - 1; ++i)
-      R[i] = m * (x[i + 1] - x[i]) 
-      + pow(function(x[i + 1]) - function(x[i]), 2) / (m * (x[i + 1] - x[i]))
-      - 2 * (function(x[i + 1]) + function(x[i]));
+      R[i] = L * (x[i + 1] - x[i]) 
+      + pow(Q[i + 1] - Q[i], 2) / (L * (x[i + 1] - x[i]))
+      - 2 * (Q[i + 1] + Q[i]);
 
     int ROI = std::distance(R.begin(), std::max_element(R.begin(), R.begin()+n));
-    double x_new = .5* (x[ROI + 1] + x[ROI]) - (function(x[ROI + 1]) - function(x[ROI]))/(2*m);
-    x.push_back(x_new);
-    std::sort(x.begin(), x.end());
+    double x_new = .5* (x[ROI + 1] + x[ROI]) - (Q[ROI + 1] - Q[ROI])/(2*L);
 
-    if(function(x_new) < func_val_at_min){
-      std::swap(global_min,x_new);
-      func_val_at_min = function(global_min);
+    Q.insert(Q.begin() + ROI + 1, function(x_new));
+    auto lower_x = std::lower_bound(x.begin(), x.end(), x_new);
+    x.insert(lower_x, x_new);
+    
+    M_max = std::max({M_max, get_M(ROI), get_M(ROI + 1)});
+    
+    if(Q[ROI + 1] < func_val_at_min){
+      global_min = x_new;
+      func_val_at_min = Q[ROI + 1];
     }
 
-    if( std::abs(x_new - global_min) < eps)
+    if( std::abs(*lower_x - *(--lower_x)) < eps){
         return MetaData({global_min}, function(global_min), n);
+        }
 
     ++n;
   }
-
+  
   return MetaData({global_min}, function(global_min), n);
 }
-
 
 
 void DrawData::Clear(){
@@ -148,6 +155,7 @@ optf::MetaData FunctionContainer::Convolution(const std::vector<double> &conv_ar
   draw.points = std::make_pair(res_data.return_point[0], res_data.value);
   return res_data;
 }
+
 
 void FunctionContainer::DrawPlot(const std::vector<double> &conv_arg, double eps, bool DataDel, std::string last_Y){
   double x0 = std::min(range_vec[0].first, range_vec[0].second);
