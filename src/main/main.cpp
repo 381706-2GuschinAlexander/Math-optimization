@@ -78,15 +78,18 @@ public:
         }
       }
       if(func_vec.size() == 0) return true;
-
+      
+      if(mutex) return false;
+      mutex = true;
       FunctionContainer MO_method(func_vec, str_arg, func_range);
       auto res = MO_method.Convolution(coef_vec, 1e-3);
 
       num_of_iter_label.set_label("Number of iteration: " + std::to_string(res.num_iteration));
       point_label.set_label("Min at x: " + std::to_string(res.return_point[0]));
       value_label.set_label("Function value: " + std::to_string(res.value));
-
+      
       MO_method.DrawPlot(coef_vec, 1e-3, true ,"Conv");
+      mutex = false;
       return true;
       });
 
@@ -133,13 +136,12 @@ private:
   int last_entry = 0;
   int button1Clicked = 0;
   int button2Clicked = 0;
-  
+  bool mutex = false;
 };
 
 int main(int argc, char* argv[]) {
-  g_object_set(gtk_settings_get_default(), "gtk-application-prefer-dark-theme", true, NULL);
-  g_object_set(gtk_settings_get_default(), "gtk-button-images", true, NULL);
-  auto application = gtk::Application::create(argc, argv);
+  auto app = Gtk::Application::create(argc, argv);
   WindowMain window;
-  return application->run(window);
+
+  return app->run(window);
 }
