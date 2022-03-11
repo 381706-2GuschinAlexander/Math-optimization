@@ -26,24 +26,18 @@ namespace optf{
   MetaData StronginMethod(std::function<double(double)> function, double x0, double x1, double r, double eps);
 };
 
-struct DrawData{
-  std::vector<double> X;
-  std::vector<std::vector<double>> Y_vec;
-  std::list<int> range;
-  std::pair<double, double> points;
-  std::function<double(double)> function;
-  void Clear();
-  void Draw(std::string last_Y = "");
-};
-
 class FunctionContainer
 {
 private:
-  DrawData draw;
+  //for drawing
+  std::function<double(double)> function;
+  std::pair<double, double> point;
+  //
   std::vector<FunctionParser> func_vector;
   std::vector<std::pair<double,double>> range_vec;
   int operation_id;
-  std::list<int> FindSolution();
+  std::list<int> FindSolution(const std::vector<std::vector<double>>& Y_vec);
+  void Draw(const std::vector<double>& X,const std::vector<std::vector<double>>& Y_vec, const std::list<int>& range, std::string last_Y = "");
 public:
   FunctionContainer(const std::vector<std::string>& str_func_vector, const std::string& str_arg, std::vector<std::pair<double,double>>& range);
   optf::MetaData Convolution(const std::vector<double> &conv_arg, double eps);

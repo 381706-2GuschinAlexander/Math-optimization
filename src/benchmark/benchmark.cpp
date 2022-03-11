@@ -16,5 +16,7 @@ int main(){
 
   std::cout << "Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << " ms\n";
   std::cout << ((abs(old_v.return_point[0] - 4.64057 ) < 1e-5) ? "True" : "False" )<< "\n";
+
+  cont.DrawPlot(coef_vec, 1e-3, "Conv");
   return 0;
 }
