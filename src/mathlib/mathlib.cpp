@@ -68,11 +68,6 @@ optf::MetaData optf::StronginMethod(std::function<double(double)> function, doub
 }
 
 
-
-
-
-
-
 FunctionContainer::FunctionContainer(const std::vector<std::string> &str_func_vector, const std::string &str_arg, std::vector<std::pair<double,double>>& range) :  range_vec(range)
 {
   for (auto &str_func : str_func_vector)
@@ -91,25 +86,42 @@ optf::MetaData FunctionContainer::Convolution(const std::vector<double> &conv_ar
   for(auto c: conv_arg)
     coef_sum += c;
 
-  std::vector<double> max_val;
-  std::vector<double> min_val;
-  
-  //finding all min,max for functions
-  for (auto &func : func_vector)
-  {
-    auto la_min = [=](double x) mutable->double {
-      double local_x = x;
-      return func.Eval(&local_x);
-    };
+  int func_vec_size = func_vector.size();
+  std::vector<double> max_val(func_vec_size);
+  std::vector<double> min_val(func_vec_size);
 
-    auto la_max = [=](double x) mutable->double{
-      double local_x = x;
-      return -func.Eval(&local_x);
-    };
-    min_val.push_back(optf::StronginMethod(la_min, x0, x1, 25, eps).value);
-    max_val.push_back(-optf::StronginMethod(la_max, x0, x1, 25, eps).value);
+  std::vector<FunctionParser> tmp_func(2 * func_vec_size);
+
+  //half of vector is a shallow-copy, another half is a deep-copy 
+  for(int i = 0; i < func_vec_size; ++i){
+    tmp_func[i] = func_vector[i];
+    tmp_func[i + func_vec_size] = func_vector[i];
+    tmp_func[i + func_vec_size].ForceDeepCopy();
   }
 
+  //finding all min,max for functions
+  #pragma omp parallel for schedule(static)
+  for (int i = 0; i < 2 * func_vec_size; ++i )
+  {
+    if(i < func_vec_size){
+      auto la_min = [&](double x) mutable->double {
+      double local_x = x;
+      return tmp_func[i].Eval(&local_x);
+      };
+      
+      min_val[i] = optf::StronginMethod(la_min, x0, x1, 25, eps).value;
+      
+    } else {
+      auto la_max = [&](double x) mutable->double{
+      double local_x = x;
+      return -tmp_func[i].Eval(&local_x);
+      };
+
+      max_val[i - func_vec_size] = -optf::StronginMethod(la_max, x0, x1, 25, eps).value;
+    } 
+  }
+
+  //convolution lamda
   auto la = [=](double x) mutable->double{
     double res = 0;
     for(int i = 0; i < func_vector.size(); ++i){

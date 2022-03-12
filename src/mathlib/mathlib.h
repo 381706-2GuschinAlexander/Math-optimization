@@ -13,6 +13,7 @@
 
 #include "matplotlibcpp.h"
 #include "fparser.hh"
+#include "omp.h"
 
 namespace plt = matplotlibcpp;
 
