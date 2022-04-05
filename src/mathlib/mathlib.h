@@ -22,7 +22,7 @@ namespace optf{
     std::vector<double> return_point;
     int num_iteration;
     double value;
-    MetaData(std::vector<double> vec, double val, int n);
+    MetaData(const std::vector<double>& vec, double val, int n);
   };
   MetaData StronginMethod(std::function<double(double)> function, double x0, double x1, double r, double eps);
 };
@@ -42,5 +42,5 @@ private:
 public:
   FunctionContainer(const std::vector<std::string>& str_func_vector, const std::string& str_arg, std::vector<std::pair<double,double>>& range);
   optf::MetaData Convolution(const std::vector<double> &conv_arg, double eps);
-  void DrawPlot(const std::vector<double> &conv_arg, double eps, bool DataDel = true, std::string last_Y = "");
+  void DrawPlot(const std::vector<double> &conv_arg, double eps, std::string last_Y = "");
 };

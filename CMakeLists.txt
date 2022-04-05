@@ -58,6 +58,8 @@ target_link_libraries(mathlib
         OpenMP::OpenMP_CXX
 )
 
+target_compile_features(mathlib PRIVATE cxx_std_17)
+
 include_directories(${CMAKE_CURENT_SOURCE_DIR}src/mathlib)
 add_executable(main ${CMAKE_CURENT_SOURCE_DIR}src/main/main.cpp)
 target_link_libraries(main

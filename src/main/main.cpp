@@ -49,6 +49,20 @@ public:
     fixed.add(range_str_label);
     fixed.move(range_str_label, 665, 10);
 
+    point_label.set_label("Min at x: ");
+    fixed.add(point_label);
+    fixed.move(point_label, 600, 380);
+
+    value_label.set_label("Function value_label: ");
+    fixed.add(value_label);
+    fixed.move(value_label, 600, 415);
+
+    num_of_iter_label.set_label("Number of iteration: ");
+    fixed.add(num_of_iter_label);
+    fixed.move(num_of_iter_label, 600, 450);
+
+    fixed.add(button1);
+    fixed.move(button1, 20, 450);
     
     range = std::vector<gtk::Entry>(2);
     fixed.add(range[0]);
@@ -88,25 +102,12 @@ public:
       point_label.set_label("Min at x: " + std::to_string(res.return_point[0]));
       value_label.set_label("Function value: " + std::to_string(res.value));
       
-      MO_method.DrawPlot(coef_vec, 1e-3, true ,"Conv");
+      MO_method.DrawPlot(coef_vec, 1e-3,"Conv");
       mutex = false;
       return true;
       });
 
-    point_label.set_label("Min at x: ");
-    fixed.add(point_label);
-    fixed.move(point_label, 600, 380);
-
-    value_label.set_label("Function value_label: ");
-    fixed.add(value_label);
-    fixed.move(value_label, 600, 415);
-
-    num_of_iter_label.set_label("Number of iteration: ");
-    fixed.add(num_of_iter_label);
-    fixed.move(num_of_iter_label, 600, 450);
-
-    fixed.add(button1);
-    fixed.move(button1, 20, 450);
+    
     
     set_title("Program");
     resize(800, 500);

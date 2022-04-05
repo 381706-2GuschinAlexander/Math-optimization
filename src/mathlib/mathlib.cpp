@@ -1,6 +1,6 @@
 #include "mathlib.h"
 
-optf::MetaData::MetaData(std::vector<double> vec, double val, int n) : return_point(vec), num_iteration(n), value(val){}
+optf::MetaData::MetaData(const std::vector<double>& vec, double val, int n) : return_point(vec), num_iteration(n), value(val){}
 
 optf::MetaData optf::StronginMethod(std::function<double(double)> function, double a, double b, double r, double eps){
   int N = 10000;
@@ -57,10 +57,9 @@ optf::MetaData optf::StronginMethod(std::function<double(double)> function, doub
       func_val_at_min = Q[ROI + 1];
     }
 
-    if( std::abs(*lower_x - *(--lower_x)) < eps){
-        return MetaData({global_min}, function(global_min), n);
-        }
-
+    if(std::abs(*lower_x - *(--lower_x)) < eps)
+      return MetaData({global_min}, function(global_min), n);
+      
     ++n;
   }
   
@@ -139,7 +138,7 @@ optf::MetaData FunctionContainer::Convolution(const std::vector<double> &conv_ar
 }
 
 
-void FunctionContainer::DrawPlot(const std::vector<double> &conv_arg, double eps, bool DataDel, std::string last_Y){
+void FunctionContainer::DrawPlot(const std::vector<double> &conv_arg, double eps, std::string last_Y){
   double x0 = std::min(range_vec[0].first, range_vec[0].second);
   double x1 = std::max(range_vec[0].first, range_vec[0].second);
   double h = 0.005;
