@@ -64,23 +64,28 @@ public:
     fixed.add(button1);
     fixed.move(button1, 20, 450);
     
-    range = std::vector<gtk::Entry>(2);
-    fixed.add(range[0]);
-    fixed.add(range[1]);
-    fixed.move(range[0], 600, start_y);
-    fixed.move(range[1], 600, start_y + h_y);
+    range = std::vector<gtk::Entry>(4);
+    for (int i = 0; i < range.size(); ++i) {
+      fixed.add(range[i]);
+      fixed.move(range[i], 600, start_y + h_y * i);
+    }
+
 
     button1.set_label("Calculate");
     button1.signal_button_release_event().connect([&](GdkEventButton*) {
-      std::string str_arg = "x";
+      std::string str_arg = "x,y";
       std::vector<std::string> func_vec;
       std::vector<double> coef_vec;
       std::vector<std::pair<double,double>> func_range;
 
       if(range[0].get_text() == "" || range[1].get_text() == "") return true;
       
-      double x0 = std::stod(range[0].get_text()), x1 = std::stod(range[1].get_text());
-      func_range.push_back(std::make_pair(x0,x1));
+      for(int i = 0;  i < range.size()/2; ++i)
+      {
+        double x0 = std::stod(range[2 * i].get_text()), x1 = std::stod(range[2 * i + 1].get_text());
+        func_range.push_back(std::make_pair(x0,x1));
+      }
+      
 
       for(int i = 0; i < function_entry_vec.size(); ++i){
         std::string tmp_string(function_entry_vec[i].get_text());
@@ -95,14 +100,14 @@ public:
       
       if(mutex) return false;
       mutex = true;
-      FunctionContainer MO_method(func_vec, str_arg, func_range);
-      auto res = MO_method.Convolution(coef_vec, 1e-3);
+      FunctionContainer MO_method(func_vec, str_arg, func_range, 1e-3, 0.01);
+      auto res = MO_method.Convolution(coef_vec);
 
       num_of_iter_label.set_label("Number of iteration: " + std::to_string(res.num_iteration));
       point_label.set_label("Min at x: " + std::to_string(res.return_point[0]));
       value_label.set_label("Function value: " + std::to_string(res.value));
       
-      MO_method.DrawPlot(coef_vec, 1e-3,"Conv");
+      MO_method.DrawPlot(coef_vec,"Conv");
       mutex = false;
       return true;
       });
