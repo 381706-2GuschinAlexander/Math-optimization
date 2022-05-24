@@ -173,14 +173,15 @@ optf::MetaData FunctionContainer::Convolution(const std::vector<double> &conv_ar
 
     if(auto res = optf::StronginMethod(la,x0,x1,25, eps); res.value < min_conv)
     {
+      min_conv = res.value;
       res_data = res;
       function = la;
-      y_conv = y;
+      res_data.return_point.push_back(y);
     }
   }
 
   
-  res_data.return_point.push_back(y_conv);
+  
 
   data = res_data;
   point = std::make_pair(res_data.return_point[0], res_data.value);

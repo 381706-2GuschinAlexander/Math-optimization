@@ -49,11 +49,14 @@ public:
     fixed.add(range_str_label);
     fixed.move(range_str_label, 665, 10);
 
-    point_label.set_label("Min at x: ");
-    fixed.add(point_label);
-    fixed.move(point_label, 600, 380);
+    pointx_label.set_label("Min at x: ");
+    fixed.add(pointx_label);
+    fixed.move(pointx_label, 600, 345);
+    pointy_label.set_label("Min at y: ");
+    fixed.add(pointy_label);
+    fixed.move(pointy_label, 600, 380);
 
-    value_label.set_label("Function value_label: ");
+    value_label.set_label("Function value: ");
     fixed.add(value_label);
     fixed.move(value_label, 600, 415);
 
@@ -104,7 +107,8 @@ public:
       auto res = MO_method.Convolution(coef_vec);
 
       num_of_iter_label.set_label("Number of iteration: " + std::to_string(res.num_iteration));
-      point_label.set_label("Min at x: " + std::to_string(res.return_point[0]));
+      pointx_label.set_label("Min at x: " + std::to_string(res.return_point[0]));
+      pointy_label.set_label("Min at y: " + std::to_string(res.return_point[1]));
       value_label.set_label("Function value: " + std::to_string(res.value));
       
       MO_method.DrawPlot(coef_vec,"Conv");
@@ -133,7 +137,8 @@ private:
   std::vector<gtk::Entry> coef_entry_vec;
   std::vector<gtk::Entry> range;
   gtk::Label num_of_iter_label;
-  gtk::Label point_label;
+  gtk::Label pointx_label;
+  gtk::Label pointy_label;
   gtk::Label value_label;
   gtk::Label functions_label;
   gtk::Label params_label;
