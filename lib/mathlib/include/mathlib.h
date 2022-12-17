@@ -8,14 +8,15 @@
 #include <algorithm>
 #include <cfloat>
 #include <numeric>
+#include <algorithm>
+#include <iterator>
 #include <list>
 
 
-#include "matplotlibcpp.h"
-#include "fparser.hh"
+#include "iterator.h"
+#include "utils.h"
 #include "omp.h"
 
-namespace plt = matplotlibcpp;
 
 namespace optf{
   struct MetaData{
@@ -30,28 +31,25 @@ namespace optf{
   MetaData StronginMethod(std::function<double(double)> function, double x0, double x1, double r, double eps);
 };
 
-using str_v = std::vector<std::string>;
+using function = std::function<std::vector<double>&(double)>;
 using range_v = std::vector<std::pair<double,double>>;
 
 class FunctionContainer
 {
 private:
-  //for drawing
-  std::function<double(double)> function;
-  std::pair<double, double> point;
-  optf::MetaData data;
-  //
-  std::vector<FunctionParser> func_vector;
-  std::vector<std::pair<double,double>> range_vec;
-  double eps;
-  double h_y;
+  std::vector<function> _func_vector;
+  std::vector<double> _min_vec;
+  std::vector<double> _max_vec;
+  double _eps;
+  std::vector<double> _step;
   int operation_id;
 
   //
-  std::list<int> FindSolution(const std::vector<std::vector<double>>& Y_vec);
-  void Draw(const std::vector<double>& X,const std::vector<std::vector<double>>& Y_vec, const std::list<int>& range, std::string last_Y = "");
+  std::tuple<std::vector<double>, std::vector<double>> GetMinMax();
 public:
-  FunctionContainer(const str_v& str_func_vector, const std::string& str_arg, const range_v& range, double _eps, double _h_y);
+  FunctionContainer(const std::vector<function>& str_func_vector, const range_v& range, double eps, std::vector<double>& step);
+
+  
   optf::MetaData Convolution(const std::vector<double> &conv_arg);
   void DrawPlot(const std::vector<double> &conv_arg, std::string last_Y = "");
 };
