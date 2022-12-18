@@ -13,3 +13,6 @@ SET(CMAKE_C_FLAGS_DISTRIBUTION "-O2")
 
 add_subdirectory(lib)
 add_subdirectory(main)
+
+
+

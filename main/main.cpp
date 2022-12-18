@@ -1,4 +1,5 @@
 #include "mathlib.h"
+#include "beam.h"
 #include <gtkmm.h>
 
 #include <string>
@@ -66,55 +67,46 @@ public:
 
     fixed.add(button1);
     fixed.move(button1, 20, 450);
-    
-    range = std::vector<gtk::Entry>(4);
-    for (int i = 0; i < range.size(); ++i) {
-      fixed.add(range[i]);
-      fixed.move(range[i], 600, start_y + h_y * i);
-    }
-
 
     button1.set_label("Calculate");
     button1.signal_button_release_event().connect([&](GdkEventButton*) {
-      std::string str_arg = "x,y";
-      std::vector<std::string> func_vec;
       std::vector<double> coef_vec;
       std::vector<std::pair<double,double>> func_range;
 
-      if(range[0].get_text() == "" || range[1].get_text() == "") return true;
       
-      for(int i = 0;  i < range.size()/2; ++i)
-      {
-        double x0 = std::stod(range[2 * i].get_text()), x1 = std::stod(range[2 * i + 1].get_text());
-        func_range.push_back(std::make_pair(x0,x1));
-      }
+      func_range.push_back(std::make_pair(10, 80));
+      func_range.push_back(std::make_pair(10, 50));
+      func_range.push_back(std::make_pair(0.9, 5));
+      func_range.push_back(std::make_pair(0.9, 5));
       
 
       for(int i = 0; i < function_entry_vec.size(); ++i){
-        std::string tmp_string(function_entry_vec[i].get_text());
         std::string coef(coef_entry_vec[i].get_text());
 
-        if(tmp_string != "" && coef != ""){
-          func_vec.push_back(tmp_string);
+        if(coef != ""){
           coef_vec.push_back(std::stod(coef));
         }
       }
-      if(func_vec.size() == 0) return true;
-      
-      if(mutex) return false;
-      mutex = true;
-      FunctionContainer MO_method(func_vec, str_arg, func_range, 1e-3, 0.01);
+
+      auto f1 = get_f1();
+      auto f2 = get_f2();
+      auto pen = get_pen();
+      std::vector<function> fs = {f1, f2}; 
+
+      std::vector<double> step = {1, 10, 2, 2};
+      printf("Pre");
+      FunctionContainer MO_method(fs, func_range, 2, step);
+      printf("MO");
       auto res = MO_method.Convolution(coef_vec);
+      printf("res");
 
       num_of_iter_label.set_label("Number of iteration: " + std::to_string(res.num_iteration));
-      pointx_label.set_label("Min at x: " + std::to_string(res.return_point[0]));
-      pointy_label.set_label("Min at y: " + std::to_string(res.return_point[1]));
+      pointx_label.set_label("Min at x1: " + std::to_string(res.return_point[0]));
+      pointy_label.set_label("Min at x2: " + std::to_string(res.return_point[1]));
       value_label.set_label("Function value: " + std::to_string(res.value));
       
-      MO_method.DrawPlot(coef_vec,"Conv");
-      mutex = false;
       return true;
-      });
+    });
 
     
     
@@ -147,7 +139,6 @@ private:
   int last_entry = 0;
   int button1Clicked = 0;
   int button2Clicked = 0;
-  bool mutex = false;
 };
 
 int main(int argc, char* argv[]) {

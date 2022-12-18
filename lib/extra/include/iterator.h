@@ -1,5 +1,5 @@
 #include <vector>
-
+#include <iostream>
 
 class Iterator{
     std::vector<double> _max_vec;
@@ -45,6 +45,11 @@ public:
     }
 
     const std::vector<double>& getVec(){
+        for (auto x  : _val_vec){
+            std::cout << x << " ";
+        }
+        std::cout << "\n";
+
         return _val_vec;
     }
 

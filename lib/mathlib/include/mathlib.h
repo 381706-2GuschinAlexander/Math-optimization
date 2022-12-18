@@ -31,7 +31,7 @@ namespace optf{
   MetaData StronginMethod(std::function<double(double)> function, double x0, double x1, double r, double eps);
 };
 
-using function = std::function<std::vector<double>&(double)>;
+using function = std::function<double(const std::vector<double>&)>;
 using range_v = std::vector<std::pair<double,double>>;
 
 class FunctionContainer
@@ -47,7 +47,7 @@ private:
   //
   std::tuple<std::vector<double>, std::vector<double>> GetMinMax();
 public:
-  FunctionContainer(const std::vector<function>& str_func_vector, const range_v& range, double eps, std::vector<double>& step);
+  FunctionContainer(const std::vector<function>& str_func_vector, const range_v& range, double eps, const std::vector<double>& step);
 
   
   optf::MetaData Convolution(const std::vector<double> &conv_arg);
