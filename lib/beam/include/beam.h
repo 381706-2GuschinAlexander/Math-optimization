@@ -49,6 +49,6 @@ std::function<double(std::vector<double>)> get_pen()
                    (6 * x[1]);
         };
 
-        return std::max(0.0, MY / WY(x) + MZ / WZ(x) - sigma);
+        return  std::max(0.0,  MY / WY(x) + MZ / WZ(x) - sigma) / sigma;
     };
 }

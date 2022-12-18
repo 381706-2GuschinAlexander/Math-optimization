@@ -17,8 +17,9 @@ optf::MetaData& optf::MetaData::operator=(const MetaData& data)
   return *this;
 }
 
+
 optf::MetaData optf::StronginMethod(std::function<double(double)> function, double a, double b, double r, double eps){
-  int N = 1000;
+  int N = 200;
   std::vector<double> x(2);
   x.reserve(N);
   std::vector<double> Q(2);
@@ -131,9 +132,9 @@ std::tuple<std::vector<double>, std::vector<double>> FunctionContainer::GetMinMa
         return -_func_vector[i](local_args);
       };
 
-      if(double val = optf::StronginMethod(la_min, _min_vec[0], _max_vec[0], 25, _eps).value; val < min_val[i])
+      if(double val = optf::StronginMethod(la_min, _min_vec[0], _max_vec[0], 300, _eps).value; val < min_val[i])
           min_val[i] = val;
-      if(double val = -optf::StronginMethod(la_max, _min_vec[0], _max_vec[0], 25, _eps).value; val > max_val[i])
+      if(double val = -optf::StronginMethod(la_max, _min_vec[0], _max_vec[0], 300, _eps).value; val > max_val[i])
           max_val[i] = val;
     }
   }
@@ -145,6 +146,7 @@ std::tuple<std::vector<double>, std::vector<double>> FunctionContainer::GetMinMa
 
 optf::MetaData FunctionContainer::Convolution(const std::vector<double> &conv_arg)
 {
+  print_vec(conv_arg);
   optf::MetaData result;
   double coef_sum = 0;
   for(auto c: conv_arg)
@@ -152,6 +154,8 @@ optf::MetaData FunctionContainer::Convolution(const std::vector<double> &conv_ar
 
   auto [min_val, max_val] = GetMinMax();
   double min_conv = DBL_MAX;
+
+  
 
   auto min_vec = std::vector<double>(_min_vec.begin() + 1, _min_vec.end());
   auto max_vec = std::vector<double>(_max_vec.begin() + 1, _max_vec.end());
@@ -178,7 +182,7 @@ optf::MetaData FunctionContainer::Convolution(const std::vector<double> &conv_ar
     };
 
 
-    if(auto meta = optf::StronginMethod(la, _min_vec[0], _max_vec[0], 25, _eps); meta.value < min_conv){
+    if(auto meta = optf::StronginMethod(la, _min_vec[0], _max_vec[0], 300, _eps); meta.value < min_conv){
       result = meta;
       min_conv = result.value;
       for (auto points = local_args.begin()+1; points != local_args.end(); ++points)

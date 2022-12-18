@@ -14,5 +14,8 @@ SET(CMAKE_C_FLAGS_DISTRIBUTION "-O2")
 add_subdirectory(lib)
 add_subdirectory(main)
 
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/image/f1.png ${CMAKE_CURRENT_BINARY_DIR}/main/f1.png COPYONLY)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/image/f2.png ${CMAKE_CURRENT_BINARY_DIR}/main/f2.png COPYONLY)
+
 
 
