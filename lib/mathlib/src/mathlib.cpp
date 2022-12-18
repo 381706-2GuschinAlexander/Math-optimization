@@ -18,7 +18,7 @@ optf::MetaData& optf::MetaData::operator=(const MetaData& data)
 }
 
 optf::MetaData optf::StronginMethod(std::function<double(double)> function, double a, double b, double r, double eps){
-  int N = 10000;
+  int N = 1000;
   std::vector<double> x(2);
   x.reserve(N);
   std::vector<double> Q(2);
@@ -82,11 +82,12 @@ optf::MetaData optf::StronginMethod(std::function<double(double)> function, doub
 }
 
 
-FunctionContainer::FunctionContainer(const std::vector<function>& str_func_vector, const range_v& range, double eps,const  std::vector<double>& step)
+FunctionContainer::FunctionContainer(const std::vector<function>& str_func_vector, const range_v& range, double eps, const std::vector<double>& step, function error_func)
 {
   if (range.size() !=  step.size())
     throw std::exception();
 
+  _eps = eps;
 
   _func_vector = str_func_vector;
   
@@ -94,7 +95,7 @@ FunctionContainer::FunctionContainer(const std::vector<function>& str_func_vecto
     _min_vec.push_back(pair.first);
     _max_vec.push_back(pair.second);
   }
-
+  _error_func = error_func;
   _step = step;
 }
 
@@ -171,6 +172,7 @@ optf::MetaData FunctionContainer::Convolution(const std::vector<double> &conv_ar
       {
         res += (conv_arg[i] / coef_sum) * ((_func_vector[i](local_args) - min_val[i]) / (max_val[i] - min_val[i]));
       }
+      res += _error_func(local_args);
       return res;
 
     };
@@ -178,6 +180,7 @@ optf::MetaData FunctionContainer::Convolution(const std::vector<double> &conv_ar
 
     if(auto meta = optf::StronginMethod(la, _min_vec[0], _max_vec[0], 25, _eps); meta.value < min_conv){
       result = meta;
+      min_conv = result.value;
       for (auto points = local_args.begin()+1; points != local_args.end(); ++points)
         result.return_point.push_back(*points);
     }

@@ -93,12 +93,17 @@ public:
       auto pen = get_pen();
       std::vector<function> fs = {f1, f2}; 
 
-      std::vector<double> step = {1, 10, 2, 2};
-      printf("Pre");
-      FunctionContainer MO_method(fs, func_range, 2, step);
-      printf("MO");
+      std::vector<double> step = {1, 1, 0.1, 0.1};
+      FunctionContainer MO_method(fs, func_range, 1e-2, step, pen);
       auto res = MO_method.Convolution(coef_vec);
-      printf("res");
+      for(auto c : res.return_point)
+        std::cout << c << " ";
+      std::cout << "\n";
+      std::cout << pen(res.return_point) <<"\n";
+
+      std::cout << "result f1" << f1(res.return_point) <<"\n";
+      std::cout << "result f2" << f2(res.return_point) <<"\n";
+
 
       num_of_iter_label.set_label("Number of iteration: " + std::to_string(res.num_iteration));
       pointx_label.set_label("Min at x1: " + std::to_string(res.return_point[0]));

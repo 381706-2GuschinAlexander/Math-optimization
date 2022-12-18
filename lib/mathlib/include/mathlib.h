@@ -42,12 +42,13 @@ private:
   std::vector<double> _max_vec;
   double _eps;
   std::vector<double> _step;
+  function _error_func;
   int operation_id;
 
   //
   std::tuple<std::vector<double>, std::vector<double>> GetMinMax();
 public:
-  FunctionContainer(const std::vector<function>& str_func_vector, const range_v& range, double eps, const std::vector<double>& step);
+  FunctionContainer(const std::vector<function>& str_func_vector, const range_v& range, double eps, const std::vector<double>& step, function error_func);
 
   
   optf::MetaData Convolution(const std::vector<double> &conv_arg);
