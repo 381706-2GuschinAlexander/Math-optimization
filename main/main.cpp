@@ -17,7 +17,7 @@ public:
     scrolledWindow.add(fixed);
     
     int start_y = 35;
-    int h_y = 35;
+    int h_y = 55;
 
     img = std::vector<gtk::Image>(num_of_entry);
     coef_entry_vec = std::vector<gtk::Entry>(num_of_entry);
@@ -41,12 +41,7 @@ public:
 
     params_label.set_label("Weight");
     fixed.add(params_label);
-    fixed.move(params_label, 355, 10);
-
-    range_str_label.set_label("Range");
-    fixed.add(range_str_label);
-    fixed.move(range_str_label, 665, 10);
-
+    fixed.move(params_label, 400, 10);
 
     for(uint32_t i = 0; i < 4; ++i){
       char buf[40];
@@ -125,7 +120,7 @@ public:
     
     
     set_title("Program");
-    resize(800, 500);
+    resize(600, 500);
     show_all();
   }
   
@@ -143,7 +138,6 @@ private:
   gtk::Label value_label2;
   gtk::Label functions_label;
   gtk::Label params_label;
-  gtk::Label range_str_label;
 
   int num_of_entry = 2;
   int last_entry = 0;
