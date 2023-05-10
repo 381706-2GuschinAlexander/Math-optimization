@@ -1,11 +1,11 @@
-#include "mathlib.h"
-#include "beam.h"
-#include <gtkmm.h>
 
 #include <string>
 #include <vector>
 #include <iostream>
 
+#include "mathlib.h"
+#include "beam.h"
+#include <gtkmm.h>
 
 namespace gtk = Gtk;
 namespace glib = Glib;
@@ -66,7 +66,6 @@ public:
 
     fixed.add(button1);
     fixed.move(button1, 20, 450);
-
     button1.set_label("Calculate");
     button1.signal_button_release_event().connect([&](GdkEventButton*) {
       std::vector<double> coef_vec;
@@ -92,7 +91,7 @@ public:
       auto pen = get_pen();
       std::vector<function> fs = {f1, f2}; 
 
-      std::vector<double> step = {1, 2, 0.1, 0.1};
+      std::vector<double> step = {1, 1, 0.1, 0.1};
       FunctionContainer MO_method(fs, func_range, 1e-2, step, pen);
       auto res = MO_method.Convolution(coef_vec);
       for(auto c : res.return_point)

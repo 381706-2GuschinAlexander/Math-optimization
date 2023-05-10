@@ -49,6 +49,8 @@ std::function<double(std::vector<double>)> get_pen()
                    (6 * x[1]);
         };
 
-        return  std::max(0.0,  MY / WY(x) + MZ / WZ(x) - sigma) / sigma;
+        double result =  std::max(0.0, (MY / WY(x) + MZ / WZ(x) - sigma) / (4*sigma));
+        //std::cout << "penalty function: " << result   << "\n";
+        return  result ;
     };
 }

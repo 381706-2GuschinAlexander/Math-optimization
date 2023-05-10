@@ -7,9 +7,6 @@ if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
 endif()
 
 set(CMAKE_BUILD_TYPE RelWithDebInfo)
-SET(CMAKE_CXX_FLAGS_DISTRIBUTION "-O2")
-SET(CMAKE_C_FLAGS_DISTRIBUTION "-O2")
-
 
 add_subdirectory(lib)
 add_subdirectory(main)

@@ -18,6 +18,7 @@ public:
         _min_vec = min_vec;
         _val_vec = min_vec;
         _step_vec = step_vec;
+
     }
 
     Iterator& operator++(){
@@ -36,7 +37,8 @@ public:
 
             
         }
-
+        if(_step_vec.size() == 0)
+          _not_done = false;
         return *this;
     }
 
@@ -45,10 +47,10 @@ public:
     }
 
     const std::vector<double>& getVec(){
-        for (auto x  : _val_vec){
-            std::cout << x << " ";
-        }
-        std::cout << "\n";
+        // for (auto x  : _val_vec){
+        //     std::cout << x << " ";
+        // }
+        // std::cout << "\n";
 
         return _val_vec;
     }
